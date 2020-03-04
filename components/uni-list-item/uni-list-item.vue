@@ -170,20 +170,24 @@
 		/* #ifndef APP-NVUE */
 		display: flex;
 		/* #endif */
+		height: $uni-img-size-xxlg;
 		flex: 1;
 		overflow: hidden;
 		flex-direction: column;
+		justify-content: flex-start;
 		color: #3b4144;
 
 	}
 
 	.uni-list-item__content-title {
-		font-size: $uni-font-size-base;
+		display: flex;
+		font-size: $uni-font-size-lg;
 		color: #3b4144;
 		overflow: hidden;
 	}
 
 	.uni-list-item__content-note {
+		display: flex;
 		margin-top: 6rpx;
 		color: $uni-text-color-grey;
 		font-size: $uni-font-size-sm;
@@ -208,7 +212,7 @@
 	}
 
 	.uni-list-item__icon-img {
-		height: $uni-img-size-base;
-		width: $uni-img-size-base;
+		height: $uni-img-size-xxlg;
+		width: $uni-img-size-xxlg;
 	}
 </style>
