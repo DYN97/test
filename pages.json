@@ -13,7 +13,9 @@
         }
         ,{
             "path" : "pages/index/videoDetail/videoDetail",
-            "style" : {}
+            "style" : {
+				"navigationStyle":"custom"
+			}
         }
     ],
 	"globalStyle": {

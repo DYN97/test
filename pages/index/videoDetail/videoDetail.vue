@@ -22,7 +22,7 @@
 			</view>
 			
 			<!-- #ifndef MP-ALIPAY -->
-			<scroll-view scroll-y="true" :style="{'height':videoHeight,'position':'fixed','bottom':'0'}">
+			<scroll-view scroll-y="true" :style="{'height':videoHeight}">
 				<view class="uni-list uni-common-mt">
 					<view class="uni-list-cell">
 
@@ -45,7 +45,7 @@
 												<image v-if="item.self" src="../../../static/edit.png" style="width: 40upx;height: 40upx;margin-right: 20upx;"
 												 @click="OpenCommentBox(item.comment,item.id)"></image>
 												<image v-if="item.self" src="../../../static/cancel.png" style="width: 40upx;height: 40upx;margin-right: 20upx;"
-												 @click="cancelshow=true"></image>
+												 @click="showCancel(item.id)"></image>
 												<text>{{item.comment_date}}</text>
 											</view>
 											
@@ -60,11 +60,11 @@
 													<view class="uni-comment-child-content">{{childitem.comment}}</view>
 													<view class="uni-comment-child-date">
 														<image v-if="!childitem.self" src="../../../static/xiaoxi.png" style="width: 40upx;height: 40upx;margin-right: 20upx;"
-														 @click="OpenCommentBox('',childitem.id,item.id,item.nickname,item.fromuser)"></image>
+														 @click="OpenCommentBox('',childitem.id,item.id,childitem.nickname,childitem.fromuser)"></image>
 														<image v-if="childitem.self" src="../../../static/edit.png" style="width: 40upx;height: 40upx;margin-right: 20upx;"
 														 @click="OpenCommentBox(childitem.comment,childitem.id)"></image>
 														<image v-if="childitem.self" src="../../../static/cancel.png" style="width: 40upx;height: 40upx;margin-right: 20upx;"
-														 @click="cancelshow=true"></image>
+														 @click="showCancel(childitem.id)"></image>
 														<text>{{childitem.comment_date}}</text>
 													</view>
 													<label v-if="k!=item.childlist.length-1"></label>
@@ -86,7 +86,7 @@
 				<!-- #endif -->
 			</scroll-view>
 		</view>
-		<neil-modal :show="modalshow" title="评论" @cancel="close" @confirm="pushComment">
+		<neil-modal :show="modalshow" title="评论" @cancel="close(0)" @confirm="pushComment" @close="close(1)">
 			<view class="input-view">
 				<view class="input-name">
 					<textarea :focus='true' v-model="comment" placeholder-style="color:#000000" placeholder="写写你的看法.." :style="{height:`${0.2*this.sysheight}px`,'background-color':`#ffffff`,padding:`30upx`,'border-radius':`15upx`}" />
@@ -166,12 +166,14 @@
 			this.initVideo();
 		},
 		created() {
-			this.sysheight = uni.getSystemInfoSync().windowHeight;
+			let systeminfo = uni.getSystemInfoSync();
+			console.log(systeminfo);
+			this.sysheight = uni.getSystemInfoSync().safeArea.height;
 			this.height = `${this.sysheight}px` ;
 			let width = uni.getSystemInfoSync().windowWidth ;
 			this.width = `${width}px` ;
 			
-			this.rastHeight= this.sysheight-225;
+			this.rastHeight= this.sysheight-235;
 			this.titleHeight= `${0.1*this.rastHeight}px`;
 			this.videoHeight= `${0.8*this.rastHeight}px`;
 			console.log(this.rastHeight,this.titleHeight,this.videoHeight)
@@ -209,6 +211,7 @@
 				}
 				if(fatherid)
 				{
+					this.commentway = 0;
 					this.chosedcommentid = fatherid;
 					this.commenttouser = fathername;	
 					this.commentfromuser = fromuser;	
@@ -216,18 +219,27 @@
 				this.modalshow = true;
 				
 			},
-			close(){
-				this.modalshow =false;
-				this.comment = "";
+			showCancel(id){
+				this.chosedcommentid = id;
+				this.cancelshow = true;
 			},
-			CancelComment(id){
+			close(type){
+				if(type==0){
+					this.modalshow =false;
+					this.comment = "";
+				}else{
+					this.modalshow =false;
+				}
+			},
+			CancelComment(){
+				var me = this;
 				let promise = new Promise((resolve,reject)=>{
 					uni.request({
-						url: '/service/movie/EditComment.aspx?commentid='+id+'&type=-1',
+						url: '/service/movie/EditComment.aspx?commentid='+me.chosedcommentid+'&type=-1',
 						success: (res) => {			
-							alert("评论成功！");
+							alert("撤销评论成功！");
 							me.GetMovieDetail();
-							me.modalshow =false;
+							me.cancelshow =false;
 							me.comment = "";
 							
 							
@@ -287,8 +299,9 @@
 					return false;
 				} 
 				if(this.comment==""){
-					me.modalshow =false;
+					alert("请填写评论内容！");
 					this.canComment = true;
+					this.modalshow =false;
 					return false;
 				}
 				this.canComment = false;
