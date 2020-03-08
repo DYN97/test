@@ -164,6 +164,12 @@
 			var me = this;
 			me.GetMovieDetail()
 			this.initVideo();
+			uni.request({
+				url: '/service/movie/UpdatePlayTimes.aspx?movieid='+me.movieid,
+				success: (res) => {		
+					console.log(res);
+				}
+			})
 		},
 		created() {
 			let systeminfo = uni.getSystemInfoSync();
